@@ -1,0 +1,44 @@
+@startuml
+title Sender线程
+
+actor User as u
+participant KafKaProducer as kp
+participant Sender as s
+participant Select as sel
+participant NetworkClient as nc
+
+u -> kp: 创建KafKaProducer对象
+activate kp
+
+kp -> sel: 创建Selector对象
+activate sel
+return
+
+kp -> nc: 创建kafkaClient对象
+activate nc
+return
+
+kp -> s: 创建Sender对象
+activate s
+return
+
+kp -> s: 启动Sender线程
+activate s
+return
+
+kp --> u:
+
+s -> s: 执行run方法
+activate s
+s -> s: 步骤1：获取集群元数据信息Metadata
+s -> s: 步骤2: 获取Accumulator中已经ready的数据信息
+s -> s: 步骤3: 数据元数据信息校验
+s -> s: 步骤4: 检查与broker连接的网络是否已经ready
+s -> s: 步骤5: 创建发送请求
+s -> s: 步骤6: 执行过期数据处理逻辑
+s -> nc: 步骤7: 执行 client.send()将数据发送到等待队列中
+nc --> s:
+s -> nc: 步骤8: 执行 client.poll() 获取原数据信息，已经真正的网络读写
+nc --> s:
+deactivate s
+@enduml
